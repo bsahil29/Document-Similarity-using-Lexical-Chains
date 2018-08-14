@@ -1,0 +1,308 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algorithm}
+\usepackage{titlesec}
+\usepackage{algpseudocode}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{mathtools}
+\usepackage{nicefrac}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}%
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}%
+
+\usepackage{etoolbox}
+\usepackage[top=2.5cm, bottom=2.5cm, left=2cm, right=2cm]{geometry}
+
+\makeatletter
+\patchcmd{\ttlh@hang}{\parindent\z@}{\parindent\z@\leavevmode}{}{}
+\patchcmd{\ttlh@hang}{\noindent}{}{}{}
+
+\title{CS 656 \\
+	Algorithmic Game Theory \\
+    Distributed Fair Allocationof Indivisible Goods	\\
+% 	\ \\ \ \\
+% 	Presented By: Aviraj Mishra     Swarndeep Mandal
+	}
+
+
+\author{Yann Chevaleyre \and
+		Ulle Endriss \and
+		 Nicolas Maudet
+		}
+
+\begin{document}
+\vspace{3 cm}
+\maketitle
+\vspace{8 cm}
+\begin{center}
+\Large{Submitted By-\\
+Aviraj Mishra, 150170\\
+Swarndeep Mandal, 150754
+}
+\end{center}
+\pagebreak
+\large
+\section{Introduction}
+Distributed mechanisms for allocating indivisible goods are mechanisms lacking central control, in which agents can locally agree on deals to exchange some of the goods in their possession. 	
+
+\section{Distributed mechanisms for allocating indivisible goods}
+\subsection{Notations}
+Agents, $\mathcal{N}=\{1,2,...,n\}$\\
+Goods, $\mathcal{G} : |\mathcal{G}|=m$\\
+Allocation, $\mathcal{A}:N \to 2^{\mathcal{G}}$\\
+Initial Allocation, $\mathcal{A}_{0}$\\
+Valuation Function, $v_{i}:2^{\mathcal{G}} \to \mathbf{R}$\\
+\\
+Normalization assumption for valuation function implies that 
+\begin{itemize}
+    \item $v_{i}(\phi)=0$
+    \item $v_{i}(S) \geq 0 \forall S \subseteq \mathcal{G}$
+\end{itemize}
+\subsection{Some Types Of Valuation Function:}
+\begin{itemize}
+    \item Modular/Additive: $v(S_{1} \cup S_{2}) = v(S_{1}) + v(S_{2}) -v(S_{1} \cap S_{2}) $
+    \item Supermodular: $v(S_{1} \cup S_{2}) \geq v(S_{1}) + v(S_{2}) -v(S_{1} \cap S_{2}) $
+    \item Submodular: $v(S_{1} \cup S_{2}) \leq v(S_{1}) + v(S_{2}) -v(S_{1} \cap S_{2}) $
+    \item Single-minded : $v(S) = c$ if $S^{*} \subseteq S $ and 0 otherwise
+\end{itemize}
+\subsection{Definitions and Notations:}
+\begin{itemize}
+    \item deal, $\delta = (A,A')$
+    \item 1-deal is a deal involving only one good and hence only 2 agents
+    \item $\mathcal{N}^{\delta}=\{i \in \mathcal{N} | A(i) \neq A'(i) \}$ represents the set of agents involved in $\delta$
+    \item Payment Function, $p:\mathcal{N} \to \mathbf{R} $ such that $\sum{p(i)}=0$
+    $p(i)>0 \Rightarrow $ i pays money
+    \item For any allocation $\mathcal{A}$, $\pi : \mathcal{N} \to \mathbf{R}$ represents the sum of payments the agent has made so far.\\
+    Note that $\sum \pi (i) = 0$
+    \item A state of a system is defined to be the tuple : ($\mathcal{A},\pi$)
+    \item A payment scheme is defined as the tuple : (p,$\pi_{0}$) , where p is payment function and $\pi_{0}$ is initial payments.
+    \item Utility Function, $u_{i}:2^{\mathcal{G}}\times \mathbf{R} \to \mathbf{R}$ maps bundles along with previous payments to $\mathbf{R}$\\
+    defined as : $u_{i}(S,x)=v_{i}(S)-x$
+\end{itemize}
+\subsection{Individually Rational (IR) deal}
+A deal $\delta = (A,A')$ is called individually rational (IR) if there exists a payment function p such that $v_{i}(A') - v_{i}(A) > p(i)$ for all agents $i \in \mathcal{N}$ except possibly $p(i) = 0$ for agents i with $A(i) = A'(i)$.
+\subsection{Social Welfare}
+The social welfare of an allocation A is defined as $$sw(\mathcal{A})=\sum_{i \in \mathcal{N}}v_{i}(A(i))$$
+This is also referred to as the social welfare of a state ($\mathcal{A}, \pi$), as the sum of all $\pi(i)$ is always 0.\\
+An allocation with maximum social welfare is called \textbf{efficient}.\\
+\\
+\textbf{Theorem 1} (Efficient outcomes). \textit{Any sequence of IR deals will eventually result in an efficient allocation.}\\
+That is, if agents continue to agree on IR deals, they will eventually reach a state from which no further
+IR deal is possible, and that state will be efficient.\\
+\\
+\textbf{Theorem 2} (Efficient outcomes by 1-deals). \textit{If all valuation functions are modular, then any sequence of IR 1-deals will eventually result in an efficient allocation}\\
+Theorems 1 and 2 are easy consequences of the fact that a move from one allocation to another is an IR
+deal if and only if that move increases social welfare\\
+\\
+\textbf{Lemma 3} (IR deals and social welfare). \textit{A deal $\delta = (A, A')$ is IR if and only if sw(A) $<$ sw(A')}.\\
+\\
+\subsection{Some Specific Payment Functions}
+Locally uniform payment function, \textbf{LUPF} distributes the social surplus equally among all participating agents.
+\begin{align*}
+    p(i) = \begin{cases}
+             [v_{i}(a') - v_{i}(a')] - \frac{[sw(A') -sw(a)]}{|\mathcal{N}^{\delta}|}  & \text{if } i \in \mathcal{N}^{\delta} \\
+             0  & \text{otherwise}
+       \end{cases}
+\end{align*}
+Globally uniform payment function, \textbf{GUPF} distributes the social surplus equally among all agents.\\
+$$ p(i) = [v_{i}(a') - v_{i}(a')] - \frac{[sw(A') -sw(a)]}{|\mathcal{N}|}$$
+\\
+Note that the social surplus can always be computed from the valuation functions of the participating agents alone:
+$$ sw(A')-sw(A) = \sum_{i \in \mathcal{N}^\delta}[v_{i}(A') - v_{i}(A)]$$
+\\
+Thus, the LUPF is a fully local payment function.\\
+\\
+\section{Proportional fairness and Knaster payments}
+\textbf{Definition} (Proportionality) \textit{A negotiation state $(A, \pi)$ is called proportional if $u_{i}(A, \pi) \geq v_{i}(\mathcal{G})/n$ for all agents $i \in \mathcal{N}$}.\\
+For the above definition to be meaningful, we assume valuation functions to be monotonic.\\
+i.e. $S_{1} \subseteq S_{2} \Rightarrow v_{i}(S_{1}) \leq v_{i}(S_{2})$
+\subsection{The Knaster Procedure}
+\begin{itemize}
+    \item Compute an allocation $A^*$ that maximises social welfare. (In the classical setting this step simplifies to assigning each good to the agent who values it the most)
+    \item For each agent $i$, compute her excess, $ex_i(A^*) = v_i(A^*)-v_i(\mathcal{G})/n$ over her fair share. The total excess is defined as $Ex(A^*) = \sum_{i} ex_{i}(A^*)$
+    \item Split the total excess evenly amongst all the agents; that is, require a payment of $ex_i(A^*)-Ex(A^*)/n$ from each agent i.
+\end{itemize}
+Note that $Ex(A^{*}) \geq 0 $ because\\ $Ex(A^{*}) = sw(A^{*}) - \frac{\sum v_{i}(\mathcal{G})}{n}$ and $sw(A^{*}) \geq v_{i}(\mathcal{G})$\\
+\\
+Utility : $U_{i} = v_{i}(A^{*}) - payment$\\
+\\
+$U_{i} = \frac{v_{i}(\mathcal{G})+Ex(A^{*})}{n} $
+Hence proportional outcome.\\
+\\
+We now want to devise a payment scheme that guarantees proportionality
+on top of efficiency. At the point of convergence we would like to obtain an outcome that is equivalent to
+the outcome we would have gotten by using the Knaster procedure.\\
+Our approach is simply to choose $\pi_{0}$ and p such that at each stage ($A, \pi$) of the
+negotiation we will have $\pi(i) = ex_{i}(A) - Ex(A)/n$, thereby emulating the payments prescribed by the
+Knaster procedure.
+\begin{align*}
+\pi_{0}(i) &= ex_{i}(A_{0})-Ex(A_{0}) \\
+p(i) &= \pi'(i) - \pi(i) \\
+p(i) &= [ex_{i}(A') - Ex(A')/n] - [ex_{i}(A) - Ex(A)/n]  \\
+p(i) &= [v_{i}(A') - v_{i}(A)] - [sw(A') - sw(A)]/n \\
+\end{align*}
+This is exactly GUPF.\\
+\\
+\textbf{Theorem 4} (Proportional outcomes). \textit{Under the Knaster payment scheme, any sequence of IR deals will
+eventually result in a state that is efficient and proportional.}\\
+\\
+\textbf{Theorem 5} (Proportional outcomes by 1-deals). \textit{Under the Knaster payment scheme, if all valuation
+functions are modular, any sequence of IR 1-deals will eventually result in a state that is efficient and
+proportional.}
+\subsection{Path Length}
+Observe that by Lemma 3, it is always possible to reach the optimum using (at most) one deal, i.e., 1 is a (tight) upper bound on the shortest path.\\
+For convergence to an efficient allocation by means of IR deals, $n^{m}-1$, with n being the number of agents and m being the number of goods, is known to be a (tight) upper bound on the longest path, i.e., there exist profiles of valuation functions and initial allocations such that it is possible to visit all allocations before convergence. \\ \\
+\textbf{Lemma 6} (Distinct welfare). \textit{We can find a valuation function for each agent that is normalised, nonnegative,
+and modular such that any two allocations have distinct utilitarian social welfare.}\\
+\\
+\textbf{Proposition 7} (Path length to a proportional state). \textit{We can find a valuation function for each agent and
+an initial allocation such that there exists a sequence of IR deals with Knaster payments that will achieve
+proportionality only after exactly $n^{m} - 1$ deals.}
+
+\section{Envy-freeness and globally uniform payments}
+An allocation of goods is envy-free if no agent would rather have the bundle held by one of the other agents.\\
+\\
+\textbf{Definition 4} (Envy-freeness). \textit{A negotiation state ($A, \pi$) is called envy-free if 
+\begin{align*}
+    u_{i}(A(i), \pi(i)) \geq u_{i}(A(j), \pi(j))
+\end{align*}
+for all agents $i, j \in \mathcal{N}$.}\\
+\\
+A state that is both efficient (in the sense of maximising social welfare) and envy-free will be referred to
+as an EEF state.\\
+If all valuation functions are submodular (or modular), that is, when no agent ever likes the union of
+two disjoint bundles strictly more than the sum of the valuations of the two individual bundles, then any
+state that is envy-free is also proportional.\\
+\\
+In presence of money, envy free solutions do exist. Let $A^{*}$ be an efficient allocation.\\
+Define,
+$$\pi^{*}(i) = v_{i}(A^{*}) - sw(A^{*})/n$$\\
+Here if $v_{i}$ are assumed to be supermodular and normalized, ($A^{*},\pi^{*}$) is an EEF state.\\
+\\
+\subsection{Convergence in supermodular domains}
+Payment Scheme:
+$$ \pi_{0}(i) = v_{i}(A_{0}) - sw(A_{0})/n$$
+\textbf{Theorem 8} (Envy-free outcomes). \textit{If all valuation functions are supermodular and if initial equitability
+payments have been made, then any sequence of IR deals using the GUPF will eventually result in an EEF
+state.}\\
+\\
+\textbf{Theorem 9} (Maximality of supermodularity). \textit{No class $\mathcal{F}$ of valuation functions that strictly includes the class of supermodular functions can guarantee the following property: if all valuation functions are drawn
+from $\mathcal{F}$ and initial equitability payments have been made, then any sequence of IR deals using the GUPF
+will eventually result in an EEF state.}\\
+\\
+\textbf{Theorem 10} (Payment schemes). \textit{No path-independent payment scheme $\pi$ other than the GUPF with initial
+equitability payments can guarantee the following property: if all valuation functions are supermodular, then
+any sequence of IR deals using $\pi$ will eventually result in an EEF state.}\\
+\\
+ Theorems 9 and 10 together show that our convergence result, Theorem 8, is in some sense as strong as possible: we can neither relax the range of valuation functions to which it applies nor the payment scheme for which it will go through.
+\subsection{Convergence in modular domains}
+\textbf{Theorem 11} (Envy-free outcomes by 1-deals). \textit{If all valuation functions are modular and if initial equitability payments have been made, then any sequence of IR 1-deals using the GUPF will eventually result in
+an EEF state.}
+\section{Fair Division on Social Networks}
+There are good reasons for studying distributed mechanisms for fair division, such as a lack of confidence in—or the mere absence of—a central authority for regulating interaction. One even more compelling reason is that agents may be spatially distributed, with restricted interaction opportunities between them. In this context, the assumption of a fully connected graph (or global network) connecting  agents  quickly  becomes  unrealistic. The  pervasiveness  of  applications  exhibiting  underlying graph-like structures, like for instance small-world networks, is thus a solid motivation to study distributed mechanisms  for  allocating  goods. But it  also necessitates making appropriate assumptions about agents being only able to act and perceive their environment locally.
+\subsection{Negotiation Topology}
+A \textit{negotiation topology} is an undirected graph $G = (\mathcal{N}, E)$ the vertices of which are the agents in $\mathcal{N}$. Two agents $i$ and $j$ stand in the relation $E$ if and only if they can see each other. This means, in particular, that $i$ and $j$ may engage in negotiation and exchange goods. \\
+We put the following structural restriction on deals: any deal is possible, as long as it only involves agents belonging to a common clique of $G$. \\ \\
+\textbf{Definition 5} (Clique-deals). A deal $\delta = (A, A')$ is called a clique-deal if the set of involved agents $\mathcal{N}^\delta$ is a clique of the negotiation topology $G$.
+\subsection{Fairness on Graphs}
+Defining proportional fairness on graphs is not as straightforward as was in the previous case. This is so because an agent may not know the information about the goods that are being dealt outside of his domain, i.e. outside of his network. The first option is to assume that the full set of goods are known to the agents, and we define proportionality accordingly. Another option is to have proportionality defined with respect to a subset of the full set of goods of the system that the agent has seen so far. A third idea is to define proportionality with respect to what an agent can currently see in the network. \\
+It is clear to see that for all three the definitions, our prior framework can could not possibly guarantee proportional outcomes in all cases. A much more intuitive idea is to use the notion of envy. We say that envy can onlyt be experienced by agents with respect to the agents they can see on the network. \\
+\textbf{Definition 6} (GEF states).\textit{ A state $(A, \pi)$ is called graph envy with respect to the graph $G = (\mathcal{N}, E)$ if $u_i(A(i),\pi(i)) \geq u_i(A(j),\pi(j))$ for all agents $(i,j) \in E$.}
+\subsection{Clique-wise efficiency}
+\textbf{Definition 7} (Clique-variants). \textit{Let A be an allocation. Another allocation A' is called a clique-variant of A if and only if there exists a clique $C\subseteq \mathcal{N}$ such that $\bigcup_{i\in C} A(i) = \bigcup_{i\in C} A'(i)$ and $A(i) = A'(i)$ for all $i\notin C$} \\
+\textbf{Definition 8} (Clique-wise efficiency). \textit{An allocation A is called clique-wise efficient if $sw(A)\geq sw(A')$ for every clique-variant $A' of A$}\\
+\textbf{Lemma 13} (Clique-wise efficient outcomes). \textit{Any sequence of IR clique-deals will eventually result in a clique-wise efficient allocation of goods.} \\
+\textit{Proof}. Any deal strictly increases the social welfare and the set of possible outcomes is finite. Now let A be the terminal allocation. For the sake of contradiction, suppose that $A$ is not clique-wise efficient. Then there exists an allocation $A'$ that is a clique-variant of A such that $sw (A) < sw(A')$.  But then, by Lemma 3, $\delta = (A, A')$ must be IR (besides being a clique-deal). This contradicts our assumption of A being a terminal allocation.
+\subsection{Convergence}
+\textbf{Theorem 14} (Convergence on graphs). \textit{If all valuations are supermodular and if initial equitability payments have been made, then any sequence of IR clique-deals using the GUPF will eventually result in a GEF state.} \\
+\textbf{Theorem 15} (GEF outcomes by 1-deals). If all valuation functions are modular and if initial equitability payments have been made, then any sequence of IR 1-deals between pairs of connected agents using the GUPF will eventually result in a GEF state.
+\subsection{Path length}
+An important question to ask here is that how many deals are required before the system converges. We know, that for a fully connected graph, the upper limit is $n^m-1$. The upper limit remains the same for this case. The lower limit is intuitively zero as is in the case when there are only two agents and are disconnected to each other. \\
+\textbf{Proposition 16} (Path length for line topology). Suppose the negotiation topology $G=(\mathcal{N}, E)$ is a line: $E=\{(i,j) \in \mathcal{N}^2 | |i-j|=1\}$. Then we can find a valueation function for each agent such that there exists a sequence of IR clique-deals of length $(2^m-1).(n-1)$. \\
+\section{Degrees of envy}
+\subsection{Envy between two individual agents}
+We want to measure how much agent $i$ envies agent $j$. Consider $\Delta_{i,j}(A,\pi) = u_i(A(j),\pi(j)) - u_i(A(i),\pi(i))$. We say that agent $i$ envies agent $j$ if $\Delta_{i,j}(A,\pi)$ is positive and not otherwise. This gives rise to a $n\times n$ matrix with entries $e_{i,j}:$
+\begin{align*}
+    e_{i,j} = \begin{cases}
+             \Delta_{i,j}(A, \pi)  & \text{if } \Delta_{i,j}(A, \pi) > 0 and (i,j) \in E \\
+             0  & \text{otherwise}
+       \end{cases}
+\end{align*}
+We now use $e_i,j$ to define two different measures for the degree of envy between individual agents:
+\begin{align*}
+    e^{raw}(i,j) &= e_i,j     \\
+    e^{bool}(i,j) &= \begin{cases}
+                    1 &\text{if } e_{i,j} > 0 \\
+                    0 & otherwise
+                    \end{cases}
+\end{align*}
+$e^{bool}$ allows us to specify whether i envies j or not and the second measure tells us how much i envies j, if at all.
+\subsection{Degree of envy of a single agent}
+There are commonly two natural ways to represent the degree of envy for an individual:
+\begin{align*}
+    e^{max,op(i)} &= max_{j\in \mathcal{N}} e^{op}(i,j) \\
+    e^{sum,op(i)} &= \Sigma_{j\in \mathcal{N}} e^{op}(i,j)
+\end{align*}
+Here $op$ may stand for both $raw$ and $bool$.
+\subsection{Degree of envy of a society}
+Here also, we only show two common natural ways to represent degree of envy in a society:
+\begin{align*}
+    e^{max,op1,op2} &= max_{i\in \mathcal{N}} e^{op1,op2}(i) \\
+    e^{sum,op1,op2} &= \Sigma_{i\in \mathcal{N}} e^{op1,op2}(i)
+\end{align*}
+\subsection{Axioms for envy measure}
+Let $envy:(2^\mathcal{G})^\mathcal{N}\times \mathbb{R}^\mathcal{N}\rightarrow \mathbb{R}$ be a measure of envy. Our most fundamental requirement is that this function must be computable from the values recorded in the matrix alone. We call any measure that satisfies this requirement a \textit{proper} measure of envy. Beyond the basic requirement of envy being proper, we propose four natural axioms that any reasonable measure of envy should satisfy:
+\begin{itemize}
+    \item \textbf{Discernibility:} $envy((e_{i,j})_{i,j\in \mathcal{N}} = 0$ if and only if $e_{i,j}=0$ for all agents $i,j \in \mathcal{N}$
+    \item \textbf{Dominance:} If $((e_{i,j})_{i,j\in \mathcal{N}}$ and $((e'_{i,j})_{i,j\in \mathcal{N}}$ are envy matrices satisfying $e_{i,j} \geq e'_{i,j}$ for all agents $i,j \in \mathcal{N}$, then we must have $envy((e_{i,j})_{i,j\in \mathcal{N}} \geq envy((e'_{i,j})_{i,j\in \mathcal{N}}$
+    \item \textbf{Source Anonimity:} If $((e_{i,j})_{i,j\in \mathcal{N}}$ and $((e'_{i,j})_{i,j\in \mathcal{N}}$ are envy matrices such that there exists a permutation $\sigma : \mathcal{N} \rightarrow \mathcal{N}$ for which $e_{i,j} = e'_{\sigma(i),j}$ for all agents $i,j \in \mathcal{N}$, then we must have $envy((e_{i,j})_{i,j\in \mathcal{N}} = envy((e'_{i,j})_{i,j\in \mathcal{N}}$
+    \item \textbf{Target Anonimity: }If $(e_{i,j})_{i,j\in \mathcal{N}}$ and $((e'_{i,j})_{i,j\in \mathcal{N}}$ are envy matrices such that there exists an agent $i^* \in \mathcal{N}$ and a permutation $\sigma : \mathcal{N} \rightarrow \mathcal{N}$ for which $e_{i^*,j} = e'_{i^*,\sigma(j)}$ for all agents $i,j \in \mathcal{N}$, with $i \neq i^*$, then we must have $envy((e_{i,j})_{i,j\in \mathcal{N}} = envy((e'_{i,j})_{i,j\in \mathcal{N}}$
+\end{itemize}
+\textbf{Proposition 17} (Envy measures.) Let $op_1, op_2 \in \{ max , sum \}$ and let $op_3 \in\{ raw , bool \}$. Then $e^{op_1 , op_2 , op_3}$ is a proper measure of envy that satisfies discernibility, dominance, target  anonymity, and source anonymity.
+\subsection{Complexity of reducing envy}
+We need to define our instance and the question properly so that we can find out it's complexity. We call this problem Welfare Improvement with Envy Reduction (WIER)\\
+\textbf{Instance:} Negotiation problem, state $(A,\pi)$, measure $envy(.,.)$ \\
+\textbf{Question:} Is there an alternative state $(A',\pi')$ such that:
+\begin{itemize}
+    \item $\delta = (A, A')$ is a clique deal 
+    \item $v_i(A')-v_i(A) > \pi'(i)-\pi(i)$ for all $i \in \mathcal{N}$, and 
+    \item Is $envy(A',\pi') < envy(A,\pi)$ ?
+\end{itemize}
+\\
+\textbf{Theorem 18} (Complexity of WIER). WIER is NP-complete for  single-minded agents for every proper measure of envy that is polynomial-time computable and that satisfies the discernibility axiom.\\
+NP membership follows from the fact that the conditions of WIER can be verified in polynomial time. \\
+To establish NP-hardness, we give a polynomial-time reduction from the NP-hard problem $CLIQUE$
+\section{Conclusion}
+We saw simple conditions under which any sequence of IR steps can be guaranteed to converge to a fair outcome.  The fairness criteria considered are proportionality and envy-freeness. If the preferences are additive, then negotiation can be conducted by means of very simple deals and length of process will be linearly bounded. \\
+Theorem 4 demonstrates that the classical Knaster procedure can be  given a distributed flavour and still achieve proportional outcomes. Theorem 8 shows that envy-free outcomes can be negotiated in a distributed manner, at least when the agents have supermodular preferences. \\
+Theorem 14 shows that a weaker (localised) notion of efficiency is sufficient to guarantee convergence to envy-free states on graphs. Finally, it was shown that the local decision problem faced by agents when they have to agree on a rational deal that reduces envy is computationally intractable.
+
+% --------------------------------------------------------------- %
+% TABLE OF CONTENTS, LIST OF TABLES, and LIST OF FIGURES
+
+% \clearpage
+% \tableofcontents 
+%\clearpage
+% \listoftables
+% \listoffigures
+%\clearpage
+
+% --------------------------------------------------------------- %
+% REFERENCES
+% \bibliographystyle{apa}
+% \phantomsection
+% \addcontentsline{toc}{section}{References}
+% \bibliography{references.bib}
+
+% \appendix 
+% \section{\matlab\ script}
+% \matlab\ script that produces this lab report using the \textbf{Publish} tool:
+% \lstinputlisting{../physlab1_solution.m}
+
+
+\end{document}
