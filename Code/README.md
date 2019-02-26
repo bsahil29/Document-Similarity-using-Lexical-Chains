@@ -1,6 +1,6 @@
 Computing Document Similarity Using Lexical Chains
 
-This code assumes that python2 is installed on the system with nltk and it's neccesary libiraries.
+This code assumes that python2 is installed on the system with nltk and it's necessary libraries.
 This code can process documents which are completely in unicode (UTF-8). Otherwise it may throw an error accordingly.
 
 df_words.py computes the document frequency for each noun in the corpus. 
@@ -32,8 +32,7 @@ One can run similarity.py by running in the Terminal:     python2 similarity.py 
 
 This returns the Vector space model similarity and lexical Chain model similarity.
 
-To sample test the the model we have kept some documents in the '/documents' folder and also added their paths have been 
-added to DocumentList.txt file.
+To sample test the the model we have kept some documents in the '/documents' folder and also added their paths to DocumentList.txt file.
 
 Now, to sample test this code one needs to do the following steps:
 
